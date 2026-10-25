@@ -247,7 +247,7 @@
           ${mode === "listen" ? `<div class="sound-actions">${soundButtons(id)}</div>` : ""}
           <form id="answer-form" autocomplete="off">
             <label class="answer-label" for="answer">Your English phrase</label>
-            <input id="answer" name="answer" type="text" placeholder="Type the phrase here…" required autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="answer-help">
+            <input id="answer" name="answer" type="text" placeholder="Type the phrase here…" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" aria-describedby="answer-help">
             <p id="answer-help" class="subtext" style="margin-top:8px">Capital letters and extra spaces don't matter.</p>
             <div id="feedback" role="status"></div>
             <div class="form-actions"><button type="button" id="hint" class="secondary">Show a hint</button><button type="submit" class="primary" id="check">Check answer →</button><button type="button" class="primary" id="next" hidden>Next phrase →</button></div>
