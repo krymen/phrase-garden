@@ -151,6 +151,7 @@
     let voices = [];
     let speechSequence = 0;
     let activeUtterance = null;
+    let speechTimer = null;
 
     function notice(id, message) {
       const element = document.getElementById(id);
@@ -186,6 +187,8 @@
     }
     function cancelSpeech() {
       speechSequence++;
+      clearTimeout(speechTimer);
+      speechTimer = null;
       if (synth) synth.cancel();
       activeUtterance = null;
     }
@@ -204,29 +207,41 @@
       }
       cancelSpeech();
       const sequence = speechSequence;
-      const utterance = new SpeechSynthesisUtterance(phrases[id].text);
       const selected = document.querySelector("#voice").value;
-      utterance.lang = "en-GB";
-      if (selected !== "" && voices[Number(selected)]) {
-        utterance.voice = voices[Number(selected)];
-        utterance.lang = utterance.voice.lang;
-      }
-      utterance.rate = slow ? 0.65 : 0.9;
-      activeUtterance = utterance;
-      utterance.onstart = () => {
-        if (sequence === speechSequence) document.querySelector("#audio-notice").hidden = true;
+      const voice = selected !== "" ? voices[Number(selected)] : null;
+      const parts = slow ? phrases[id].text.split(" ") : [phrases[id].text];
+      function playPart(index) {
+        if (sequence !== speechSequence) return;
+        speechTimer = null;
+        const utterance = new SpeechSynthesisUtterance(parts[index]);
+        utterance.lang = voice ? voice.lang : "en-GB";
+        if (voice) utterance.voice = voice;
+        utterance.rate = slow ? 0.6 : 0.9;
+        activeUtterance = utterance;
+        utterance.onstart = () => {
+          if (sequence === speechSequence) document.querySelector("#audio-notice").hidden = true;
+        };
+        utterance.onend = () => {
+          if (sequence !== speechSequence) return;
+          activeUtterance = null;
+          if (index + 1 < parts.length) {
+            // Explicit pauses also work with voices that ignore speech rate.
+            speechTimer = setTimeout(() => playPart(index + 1), 450);
+          }
+        };
+        utterance.onerror = event => {
+          if (sequence !== speechSequence) return;
+          cancelSpeech();
+          if (event.error === "interrupted" || event.error === "canceled") return;
+          notice("audio-notice", "Audio could not play. Try another English voice and check your device's sound settings. Some voices need an internet connection.");
+        };
+        synth.speak(utterance);
       };
-      utterance.onend = () => { if (sequence === speechSequence) activeUtterance = null; };
-      utterance.onerror = event => {
-        if (sequence !== speechSequence || event.error === "interrupted" || event.error === "canceled") return;
-        activeUtterance = null;
-        notice("audio-notice", "Audio could not play. Try another English voice and check your device's sound settings. Some voices need an internet connection.");
-      };
-      synth.speak(utterance);
+      playPart(0);
     }
     function soundButtons(id) {
       return `<button type="button" class="small-button" data-speak="${id}" aria-label="Hear ${mode === "listen" ? "the hidden phrase" : phrases[id].text}">🔊 Listen</button>
-        <button type="button" class="small-button" data-speak="${id}" data-slow="true" aria-label="Hear ${mode === "listen" ? "the hidden phrase" : phrases[id].text} slowly">🐢 Slow</button>`;
+        <button type="button" class="small-button" data-speak="${id}" data-slow="true" title="Slower speech with a pause between words" aria-label="Hear ${mode === "listen" ? "the hidden phrase" : phrases[id].text} slowly, word by word">🐢 Slow</button>`;
     }
     function renderLearn() {
       content.innerHTML = `<div class="section-heading"><div><h2>Your phrase collection</h2><p class="subtext">Tap Listen. Follow the words. Then say the phrase yourself.</p></div><span class="pill">16 phrases to discover</span></div>
@@ -234,7 +249,7 @@
           <div class="art" style="--tint:${phrase.tint}"><span class="number">${String(id + 1).padStart(2,"0")}</span><span aria-hidden="true">${phrase.emoji}</span>${grown.has(id) ? '<span class="learned">✓ Growing</span>' : ""}</div>
           <div class="card-body"><h3>${phrase.text}</h3><p class="clue">${phrase.clue}</p><div class="card-actions">${soundButtons(id)}</div></div>
         </article>`).join("")}</div>
-        <div class="tip"><strong>Try the echo game:</strong> listen once, repeat out loud, then listen again. Use Slow to hear each word more clearly. This app plays model pronunciation; it does not record or grade your voice.</div>`;
+        <div class="tip"><strong>Try the echo game:</strong> listen once, repeat out loud, then listen again. Slow plays one word at a time with pauses; Listen plays the whole phrase naturally. This app plays model pronunciation; it does not record or grade your voice.</div>`;
     }
     function shuffled(ids) {
       const result = [...ids];
