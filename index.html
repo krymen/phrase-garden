@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#245c48">
+  <title>Phrase Garden · Unit 1</title>
+  <style>
+    :root { color-scheme: light; --ink:#203e34; --green:#245c48; --muted:#63736b; --paper:#faf9f4; --line:#dee5dc; --soft:#edf3e9; --orange:#f5b969; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select { font:inherit; }
+    button,select { cursor:pointer; }
+    button { border:0; }
+    button:disabled { cursor:default; opacity:.5; }
+    button:focus-visible,a:focus-visible,select:focus-visible { outline:3px solid #c4792e; outline-offset:4px; }
+    input:focus-visible { outline:3px solid #a4c3ac; outline-offset:2px; }
+    header { max-width:1180px; margin:auto; padding:25px 30px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
+    .brand { display:flex; align-items:center; gap:11px; font-weight:800; font-size:20px; letter-spacing:-.6px; }
+    .brand-icon { background:var(--green); border-radius:14px; padding:8px; font-size:22px; }
+    .unit { color:var(--muted); font-size:13px; border:1px solid var(--line); border-radius:30px; padding:8px 14px; }
+    main { max-width:1120px; margin:auto; padding:24px 30px 50px; }
+    .hero { display:grid; grid-template-columns:1fr 310px; gap:48px; align-items:center; margin:10px 0 34px; }
+    .eyebrow { color:var(--green); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:2px; }
+    h1 { font-family:Georgia,serif; font-size:clamp(36px,5vw,54px); font-weight:500; letter-spacing:-2px; line-height:1.08; margin:13px 0 16px; }
+    h1 em { color:var(--green); }
+    .intro { color:var(--muted); line-height:1.7; max-width:540px; margin:0; font-size:15px; }
+    .progress-card { border:1px solid var(--line); background:#fff; border-radius:20px; padding:23px; }
+    .progress-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:14px; font-weight:700; }
+    .progress-heading span:last-child { font-size:26px; }
+    .progress-card p { color:var(--muted); font-size:12px; line-height:1.6; margin-bottom:0; }
+    progress { width:100%; height:9px; border:0; border-radius:10px; overflow:hidden; margin-top:15px; background:var(--soft); accent-color:var(--green); }
+    progress::-webkit-progress-bar { background:var(--soft); }
+    progress::-webkit-progress-value { background:var(--green); border-radius:10px; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; gap:20px; padding-bottom:23px; border-bottom:1px solid var(--line); }
+    nav { display:flex; background:#eceee7; padding:5px; border-radius:13px; gap:3px; }
+    nav button { color:var(--muted); background:transparent; padding:11px 19px; border-radius:9px; font-size:14px; font-weight:650; }
+    nav button[aria-current="page"] { background:#fff; color:var(--green); box-shadow:0 2px 5px #203e340a; }
+    .voice-controls { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:12px; }
+    select { max-width:190px; border:1px solid var(--line); border-radius:8px; padding:8px; color:var(--ink); background:#fff; }
+    .section-heading { display:flex; align-items:center; justify-content:space-between; gap:15px; margin:25px 0 20px; }
+    h2 { font-size:20px; letter-spacing:-.6px; margin:0 0 6px; }
+    .subtext { color:var(--muted); font-size:13px; margin:0; line-height:1.6; }
+    .pill { font-size:11px; font-weight:700; color:var(--green); background:#e8eee3; border-radius:30px; padding:7px 12px; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:17px; overflow:hidden; transition:transform .15s,box-shadow .15s; }
+    .card:hover { transform:translateY(-3px); box-shadow:0 7px 20px #203e3409; }
+    .art { height:105px; display:grid; place-items:center; font-size:44px; position:relative; background:var(--tint); }
+    .number { position:absolute; top:12px; left:13px; font-size:10px; font-weight:750; color:#415649; background:#ffffffa8; padding:4px 7px; border-radius:7px; }
+    .learned { position:absolute; right:10px; top:10px; background:var(--green); color:white; border-radius:20px; font-size:10px; padding:4px 7px; }
+    .card-body { padding:15px; }
+    .card h3 { font-size:16px; margin:0 0 7px; font-weight:700; min-height:39px; line-height:1.25; }
+    .clue { font-size:12px; color:var(--muted); margin:0; min-height:36px; line-height:1.5; }
+    .card-actions { display:flex; gap:7px; margin-top:13px; }
+    .small-button { border:1px solid var(--line); background:white; color:var(--green); border-radius:8px; padding:8px 9px; font-size:12px; font-weight:650; }
+    .small-button:hover { background:var(--soft); }
+    .tip { margin-top:23px; background:#eeeede; color:#5c6348; padding:14px 19px; border-radius:12px; font-size:13px; line-height:1.7; }
+    .primary { background:var(--green); color:#fff; border-radius:10px; padding:13px 23px; font-size:14px; font-weight:700; }
+    .primary:hover { background:#194634; }
+    .secondary { background:var(--soft); color:var(--green); border-radius:10px; padding:13px 20px; font-size:14px; font-weight:700; }
+    .practice { max-width:670px; margin:30px auto; }
+    .exercise { background:white; border:1px solid var(--line); border-radius:24px; padding:32px; text-align:center; }
+    .exercise-top { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:12px; gap:10px; }
+    .exercise-art { font-size:65px; background:#f1f3e8; border-radius:23px; width:125px; height:125px; display:grid; place-items:center; margin:30px auto 20px; }
+    .exercise h2 { font-family:Georgia,serif; font-weight:500; font-size:29px; line-height:1.3; margin-bottom:10px; }
+    .sound-actions { display:flex; justify-content:center; gap:10px; margin:20px 0; }
+    form { text-align:left; margin-top:25px; }
+    label.answer-label { display:block; font-size:12px; font-weight:700; margin-bottom:9px; }
+    input { width:100%; border:1px solid #b9c9bd; border-radius:11px; background:#fcfdfb; color:var(--ink); padding:16px; font-size:19px; }
+    .form-actions { display:flex; justify-content:space-between; gap:12px; margin-top:15px; }
+    .feedback { text-align:left; padding:15px; border-radius:10px; margin-top:18px; font-size:14px; line-height:1.6; background:var(--soft); }
+    .feedback.retry { background:#fff1df; color:#7b4a19; }
+    .feedback strong { display:block; }
+    .summary-score { font-size:60px; font-family:Georgia,serif; color:var(--green); margin:25px 0 10px; }
+    .summary-actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:25px; }
+    .missed { text-align:left; color:var(--muted); font-size:14px; line-height:1.8; }
+    .notice { border:1px solid #e2b46e; color:#704610; background:#fff1df; border-radius:10px; padding:13px 17px; font-size:13px; margin:0 0 18px; line-height:1.6; }
+    [hidden] { display:none !important; }
+    footer { display:flex; justify-content:space-between; gap:20px; border-top:1px solid var(--line); margin-top:32px; padding-top:20px; color:var(--muted); font-size:11px; line-height:1.6; }
+    .text-button { background:none; padding:0; color:var(--muted); text-decoration:underline; font-size:11px; }
+    #announcement { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+    @media(max-width:900px) { .grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .hero { gap:25px; grid-template-columns:1fr 265px; } .toolbar { align-items:flex-start; flex-direction:column; } }
+    @media(max-width:620px) { header { padding:20px; } main { padding:12px 20px 30px; } .hero { grid-template-columns:1fr; gap:22px; } .progress-card { padding:17px; } .grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; } nav { width:100%; } nav button { flex:1; padding:11px 8px; } .card-body { padding:12px; } .card-actions { flex-wrap:wrap; } .card h3 { font-size:15px; } .exercise { padding:23px 18px; } footer { flex-direction:column; gap:10px; } .section-heading { align-items:flex-start; } .unit { font-size:11px; } }
+    @media(prefers-reduced-motion:reduce) { .card { transition:none; } .card:hover { transform:none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-icon" aria-hidden="true">🌱</span> Phrase Garden</div>
+    <span class="unit">UNIT 1 · FREE TIME</span>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="title">
+      <div>
+        <div class="eyebrow">A little practice. A lot of progress.</div>
+        <h1>Small phrases.<br><em>Big adventures.</em></h1>
+        <p class="intro">Discover 16 things you can do. Listen, say them out loud, and practise writing them. Let your English grow!</p>
+      </div>
+      <aside class="progress-card" aria-label="Learning progress">
+        <div class="progress-heading"><span>Your growing garden</span><span aria-hidden="true">🪴</span></div>
+        <progress id="mastery" max="16" value="0" aria-label="Phrases written correctly"></progress>
+        <p><strong id="mastery-label">0 of 16 phrases growing</strong><br>Write a phrase correctly without a hint to grow it.</p>
+      </aside>
+    </section>
+    <div id="storage-notice" class="notice" role="status" hidden></div>
+    <div id="audio-notice" class="notice" role="status" hidden></div>
+    <div class="toolbar">
+      <nav aria-label="Practice modes">
+        <button type="button" data-mode="learn" aria-current="page">📖 Explore</button>
+        <button type="button" data-mode="write">✏️ Write</button>
+        <button type="button" data-mode="listen">🎧 Listen &amp; write</button>
+      </nav>
+      <div class="voice-controls">
+        <label for="voice">English voice</label>
+        <select id="voice"><option value="">Device default</option></select>
+      </div>
+    </div>
+    <section id="content" aria-label="Learning activity"></section>
+    <footer>
+      <span>Made for little learners · 16 phrases from your Unit 1 page<br>Progress stays in this browser. No account. No tracking.</span>
+      <button id="reset" type="button" class="text-button">Reset saved progress</button>
+    </footer>
+    <div id="announcement" role="status" aria-live="polite"></div>
+  </main>
+  <script>
+    "use strict";
+    const phrases = [
+      { text:"play games", emoji:"🎲", clue:"Have fun with a board and dice.", tint:"#f1e9d9" },
+      { text:"listen to music", emoji:"🎧", clue:"Enjoy songs with your headphones.", tint:"#e8e6f3" },
+      { text:"watch films", emoji:"🎬", clue:"Enjoy a movie on a screen.", tint:"#e3eceb" },
+      { text:"use a computer", emoji:"💻", clue:"Work with a keyboard and a mouse.", tint:"#e8eddc" },
+      { text:"go on excursions", emoji:"🚌", clue:"Take trips to interesting places.", tint:"#f8e9db" },
+      { text:"take photos", emoji:"📷", clue:"Capture a moment with a camera.", tint:"#f8edd4" },
+      { text:"help people", emoji:"🤝", clue:"Do something kind for others.", tint:"#f4e4e4" },
+      { text:"paint pictures", emoji:"🎨", clue:"Make art with a brush and colours.", tint:"#e8eddd" },
+      { text:"make things", emoji:"🛠️", clue:"Create something with your hands.", tint:"#e4ecef" },
+      { text:"do sports", emoji:"⚽", clue:"Get active and play with a ball.", tint:"#f1e9dc" },
+      { text:"play online games", emoji:"🎮", clue:"Join a game on the internet.", tint:"#e9e5f2" },
+      { text:"write emails", emoji:"✉️", clue:"Send messages to an email address.", tint:"#e3eceb" },
+      { text:"watch music videos", emoji:"📺", clue:"See singers perform songs on screen.", tint:"#f7e6df" },
+      { text:"write for a class blog", emoji:"📝", clue:"Create a post for your class website.", tint:"#f2edd9" },
+      { text:"do projects", emoji:"🔧", clue:"Work on a task to build or discover something.", tint:"#e5edde" },
+      { text:"find out information", emoji:"🔎", clue:"Look for facts and answers.", tint:"#e5eaf1" }
+    ];
+    const content = document.querySelector("#content");
+    const storageKey = "phrase-garden-unit-1-v1";
+    const grown = new Set();
+    let mode = "learn";
+    let session = null;
+    const synth = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window ? window.speechSynthesis : null;
+    let voices = [];
+    let speechSequence = 0;
+    let activeUtterance = null;
+
+    function notice(id, message) {
+      const element = document.getElementById(id);
+      element.textContent = message;
+      element.hidden = false;
+    }
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved !== null) {
+        const values = JSON.parse(saved);
+        if (!Array.isArray(values) || values.some(value => !Number.isInteger(value) || value < 0 || value >= phrases.length)) {
+          throw new Error("Invalid saved progress");
+        }
+        values.forEach(value => grown.add(value));
+      }
+    } catch (error) {
+      console.warn("Could not load Phrase Garden progress:", error);
+      notice("storage-notice", "Saved progress could not be loaded. You can still practise; use Reset saved progress to start fresh.");
+    }
+    function save() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify([...grown]));
+        document.querySelector("#storage-notice").hidden = true;
+      } catch (error) {
+        console.warn("Could not save Phrase Garden progress:", error);
+        notice("storage-notice", "Your browser could not save progress. You can keep practising, but progress may be lost when you close this page.");
+      }
+      updateProgress();
+    }
+    function updateProgress() {
+      document.querySelector("#mastery").value = grown.size;
+      document.querySelector("#mastery-label").textContent = `${grown.size} of 16 phrases growing`;
+    }
+    function cancelSpeech() {
+      speechSequence++;
+      if (synth) synth.cancel();
+      activeUtterance = null;
+    }
+    function loadVoices() {
+      const select = document.querySelector("#voice");
+      const previous = select.value;
+      voices = synth.getVoices().filter(voice => /^en[-_]/i.test(voice.lang) || voice.lang === "en");
+      select.replaceChildren(new Option("Device default", ""));
+      voices.forEach((voice, index) => select.add(new Option(`${voice.name} (${voice.lang})`, String(index))));
+      if (previous !== "" && Number(previous) < voices.length) select.value = previous;
+    }
+    function speak(id, slow) {
+      if (!synth) {
+        notice("audio-notice", "This browser does not support spoken audio. Please open this file in a recent version of Chrome, Edge, or Safari to practise listening.");
+        return;
+      }
+      cancelSpeech();
+      const sequence = speechSequence;
+      const utterance = new SpeechSynthesisUtterance(phrases[id].text);
+      const selected = document.querySelector("#voice").value;
+      utterance.lang = "en-GB";
+      if (selected !== "" && voices[Number(selected)]) {
+        utterance.voice = voices[Number(selected)];
+        utterance.lang = utterance.voice.lang;
+      }
+      utterance.rate = slow ? 0.65 : 0.9;
+      activeUtterance = utterance;
+      utterance.onstart = () => {
+        if (sequence === speechSequence) document.querySelector("#audio-notice").hidden = true;
+      };
+      utterance.onend = () => { if (sequence === speechSequence) activeUtterance = null; };
+      utterance.onerror = event => {
+        if (sequence !== speechSequence || event.error === "interrupted" || event.error === "canceled") return;
+        activeUtterance = null;
+        notice("audio-notice", "Audio could not play. Try another English voice and check your device's sound settings. Some voices need an internet connection.");
+      };
+      synth.speak(utterance);
+    }
+    function soundButtons(id) {
+      return `<button type="button" class="small-button" data-speak="${id}" aria-label="Hear ${mode === "listen" ? "the hidden phrase" : phrases[id].text}">🔊 Listen</button>
+        <button type="button" class="small-button" data-speak="${id}" data-slow="true" aria-label="Hear ${mode === "listen" ? "the hidden phrase" : phrases[id].text} slowly">🐢 Slow</button>`;
+    }
+    function renderLearn() {
+      content.innerHTML = `<div class="section-heading"><div><h2>Your phrase collection</h2><p class="subtext">Tap Listen. Follow the words. Then say the phrase yourself.</p></div><span class="pill">16 phrases to discover</span></div>
+        <div class="grid">${phrases.map((phrase, id) => `<article class="card">
+          <div class="art" style="--tint:${phrase.tint}"><span class="number">${String(id + 1).padStart(2,"0")}</span><span aria-hidden="true">${phrase.emoji}</span>${grown.has(id) ? '<span class="learned">✓ Growing</span>' : ""}</div>
+          <div class="card-body"><h3>${phrase.text}</h3><p class="clue">${phrase.clue}</p><div class="card-actions">${soundButtons(id)}</div></div>
+        </article>`).join("")}</div>
+        <div class="tip"><strong>Try the echo game:</strong> listen once, repeat out loud, then listen again. Use Slow to hear each word more clearly. This app plays model pronunciation; it does not record or grade your voice.</div>`;
+    }
+    function shuffled(ids) {
+      const result = [...ids];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+    function startPractice(ids = phrases.map((_, id) => id)) {
+      session = { ids:shuffled(ids), index:0, correct:0, missed:[], assisted:false, checked:false };
+      renderQuestion(false);
+    }
+    function renderQuestion(focus) {
+      const id = session.ids[session.index];
+      const phrase = phrases[id];
+      content.innerHTML = `<div class="practice">
+        <div class="section-heading"><div><h2>${mode === "write" ? "Time to write" : "Listen closely"}</h2><p class="subtext">${mode === "write" ? "Read the clue. Write the phrase from your book." : "Play the audio. Write exactly what you hear."}</p></div><span class="pill">${session.correct} correct</span></div>
+        <div class="exercise">
+          <div class="exercise-top"><span>PHRASE ${session.index + 1} OF ${session.ids.length}</span><span>Take your time. You've got this!</span></div>
+          <progress value="${session.index}" max="${session.ids.length}" aria-label="Practice round progress"></progress>
+          <div class="exercise-art" aria-hidden="true">${mode === "listen" ? "🎧" : phrase.emoji}</div>
+          <h2>${mode === "write" ? phrase.clue : "What can you hear?"}</h2>
+          <p class="subtext">${mode === "write" ? `${phrase.text.split(" ").length} words · an activity from Unit 1` : "You can listen as many times as you like."}</p>
+          ${mode === "listen" ? `<div class="sound-actions">${soundButtons(id)}</div>` : ""}
+          <form id="answer-form" autocomplete="off">
+            <label class="answer-label" for="answer">Your English phrase</label>
+            <input id="answer" name="answer" type="text" placeholder="Type the phrase here…" required autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="answer-help">
+            <p id="answer-help" class="subtext" style="margin-top:8px">Capital letters and extra spaces don't matter.</p>
+            <div id="feedback" role="status"></div>
+            <div class="form-actions"><button type="button" id="hint" class="secondary">Show a hint</button><button type="submit" class="primary" id="check">Check answer →</button><button type="button" class="primary" id="next" hidden>Next phrase →</button></div>
+          </form>
+        </div>
+        <p class="subtext" style="text-align:center;margin-top:16px">A hint helps you learn. Try it again without a hint to grow the phrase.</p>
+      </div>`;
+      document.querySelector("#answer-form").addEventListener("submit", checkAnswer);
+      document.querySelector("#hint").addEventListener("click", showHint);
+      document.querySelector("#next").addEventListener("click", nextQuestion);
+      if (focus) document.querySelector("#answer").focus();
+    }
+    function normalize(value) {
+      return value.trim().toLowerCase().replace(/\s+/g, " ");
+    }
+    function showHint() {
+      if (session.checked) return;
+      session.assisted = true;
+      const text = phrases[session.ids[session.index]].text;
+      const feedback = document.querySelector("#feedback");
+      feedback.className = "feedback";
+      feedback.textContent = `First-letter hint: ${text.split(" ").map(word => word[0] + " _".repeat(word.length - 1)).join(" / ")}`;
+      document.querySelector("#answer").focus();
+    }
+    function checkAnswer(event) {
+      event.preventDefault();
+      if (session.checked) return;
+      const input = document.querySelector("#answer");
+      if (!input.value.trim()) {
+        input.setCustomValidity("Type a phrase before checking your answer.");
+        input.reportValidity();
+        input.oninput = () => input.setCustomValidity("");
+        return;
+      }
+      const id = session.ids[session.index];
+      const correct = normalize(input.value) === phrases[id].text;
+      session.checked = true;
+      if (correct && !session.assisted) {
+        session.correct++;
+        grown.add(id);
+        save();
+      } else {
+        session.missed.push(id);
+      }
+      const feedback = document.querySelector("#feedback");
+      feedback.className = `feedback${correct ? "" : " retry"}`;
+      feedback.innerHTML = `<strong>${correct ? session.assisted ? "That's it! Now try it without a hint next round." : "Lovely work! Your phrase is growing. 🌱" : "Keep going! Here is the phrase:"}</strong><span>${phrases[id].text}</span><div class="card-actions">${soundButtons(id)}</div>`;
+      input.readOnly = true;
+      input.setAttribute("aria-invalid", String(!correct));
+      document.querySelector("#hint").hidden = true;
+      document.querySelector("#check").hidden = true;
+      const next = document.querySelector("#next");
+      next.hidden = false;
+      next.textContent = session.index === session.ids.length - 1 ? "See my results →" : "Next phrase →";
+      next.focus();
+    }
+    function nextQuestion() {
+      cancelSpeech();
+      if (!session.checked) return;
+      session.index++;
+      if (session.index === session.ids.length) {
+        renderSummary();
+      } else {
+        session.checked = false;
+        session.assisted = false;
+        renderQuestion(true);
+      }
+    }
+    function renderSummary() {
+      content.innerHTML = `<div class="practice"><div class="exercise">
+        <div class="eyebrow">Round complete</div>
+        <div class="exercise-art" aria-hidden="true">${session.missed.length ? "🌿" : "🌻"}</div>
+        <h2>${session.missed.length ? "A little stronger every time." : "Look how much you've grown!"}</h2>
+        <div class="summary-score">${session.correct} / ${session.ids.length}</div>
+        <p class="subtext">Phrases written correctly without hints this round.</p>
+        ${session.missed.length ? `<div class="missed"><p>Let's practise these once more:</p><ul>${session.missed.map(id => `<li>${phrases[id].text}</li>`).join("")}</ul></div>` : '<p class="subtext" style="margin-top:15px">Say your favourite phrase out loud to celebrate!</p>'}
+        <div class="summary-actions">${session.missed.length ? '<button type="button" class="primary" id="retry">Practise these again</button>' : ""}<button type="button" class="${session.missed.length ? "secondary" : "primary"}" id="again">New full round</button><button type="button" class="secondary" id="explore">Explore phrases</button></div>
+      </div></div>`;
+      document.querySelector("#retry")?.addEventListener("click", () => startPractice(session.missed));
+      document.querySelector("#again").addEventListener("click", () => startPractice());
+      document.querySelector("#explore").addEventListener("click", () => setMode("learn"));
+      document.querySelector("#announcement").textContent = `Round complete. ${session.correct} of ${session.ids.length} correct without hints.`;
+    }
+    function setMode(nextMode) {
+      cancelSpeech();
+      mode = nextMode;
+      document.querySelectorAll("[data-mode]").forEach(button => {
+        if (button.dataset.mode === mode) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      if (mode === "learn") { session = null; renderLearn(); }
+      else startPractice();
+    }
+    document.querySelectorAll("[data-mode]").forEach(button => button.addEventListener("click", () => setMode(button.dataset.mode)));
+    content.addEventListener("click", event => {
+      const button = event.target.closest("[data-speak]");
+      if (button) speak(Number(button.dataset.speak), button.dataset.slow === "true");
+    });
+    document.querySelector("#reset").addEventListener("click", () => {
+      if (!confirm("Reset all saved phrase progress and start fresh?")) return;
+      grown.clear();
+      save();
+      setMode(mode);
+      document.querySelector("#announcement").textContent = "Your progress has been reset.";
+    });
+    window.addEventListener("pagehide", cancelSpeech);
+    if (synth) {
+      loadVoices();
+      synth.addEventListener("voiceschanged", loadVoices);
+    } else {
+      document.querySelector("#voice").disabled = true;
+      notice("audio-notice", "This browser does not support spoken audio. Open this file in a recent Chrome, Edge, or Safari for pronunciation playback. Writing practice still works here.");
+    }
+    updateProgress();
+    renderLearn();
+  </script>
+</body>
+</html>
