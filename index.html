@@ -111,12 +111,10 @@
         <button type="button" data-mode="write">✏️ Write</button>
         <button type="button" data-mode="listen">🎧 Listen &amp; write</button>
       </nav>
-      <div class="voice-controls">
-        <label for="voice">English voice</label>
-        <select id="voice"><option value="">Device default</option></select>
-      </div>
+      <span class="voice-controls">British English · recorded audio</span>
     </div>
-    <p class="subtext" style="margin-top:12px">No sound on iPhone? Turn up media volume while a phrase plays. If it is still silent, turn off Silent Mode and tap Listen again. Playback may pause other audio apps.</p>
+    <p class="subtext" style="margin-top:12px">Audio plays as media, like music. Turn up media volume while a phrase plays and check Bluetooth output if you cannot hear it. Playback may pause other audio apps.</p>
+    <audio id="pronunciation" preload="none"></audio>
     <section id="content" aria-label="Learning activity"></section>
     <footer>
       <span>Made for little learners · 16 phrases from your Unit 1 page<br>Progress stays in this browser. No account. No tracking.</span>
@@ -149,11 +147,8 @@
     const grown = new Set();
     let mode = "learn";
     let session = null;
-    const synth = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window ? window.speechSynthesis : null;
-    let voices = [];
+    const pronunciation = document.querySelector("#pronunciation");
     let speechSequence = 0;
-    let activeUtterance = null;
-    let speechTimer = null;
 
     function notice(id, message) {
       const element = document.getElementById(id);
@@ -189,24 +184,9 @@
     }
     function cancelSpeech() {
       speechSequence++;
-      clearTimeout(speechTimer);
-      speechTimer = null;
-      if (synth) synth.cancel();
-      activeUtterance = null;
-    }
-    function loadVoices() {
-      const select = document.querySelector("#voice");
-      const previous = select.value;
-      voices = synth.getVoices().filter(voice => /^en[-_]/i.test(voice.lang) || voice.lang === "en");
-      select.replaceChildren(new Option("Device default", ""));
-      voices.forEach((voice, index) => select.add(new Option(`${voice.name} (${voice.lang})`, String(index))));
-      if (previous !== "" && Number(previous) < voices.length) select.value = previous;
+      pronunciation.pause();
     }
     function speak(id, slow) {
-      if (!synth) {
-        notice("audio-notice", "This browser does not support spoken audio. Please open this file in a recent version of Chrome, Edge, or Safari to practise listening.");
-        return;
-      }
       cancelSpeech();
       if ("audioSession" in navigator && navigator.audioSession) {
         try {
@@ -215,41 +195,19 @@
           document.querySelector("#audio-session-notice").hidden = true;
         } catch (error) {
           console.warn("Could not select playback audio routing:", error);
-          notice("audio-session-notice", "Your browser could not select media playback audio. If speech is silent on iPhone, turn off Silent Mode and turn up media volume, then tap Listen again.");
+          notice("audio-session-notice", "Your browser could not select media playback audio. Try Listen again and check media volume and Silent Mode if you cannot hear it.");
         }
       }
       const sequence = speechSequence;
-      const selected = document.querySelector("#voice").value;
-      const voice = selected !== "" ? voices[Number(selected)] : null;
-      const parts = slow ? phrases[id].text.split(" ") : [phrases[id].text];
-      function playPart(index) {
+      pronunciation.src = `audio/${String(id + 1).padStart(2, "0")}${slow ? "-slow" : ""}.wav`;
+      // Keep play() directly in the tap handler for iPhone media permissions.
+      pronunciation.play().then(() => {
+        if (sequence === speechSequence) document.querySelector("#audio-notice").hidden = true;
+      }).catch(error => {
         if (sequence !== speechSequence) return;
-        speechTimer = null;
-        const utterance = new SpeechSynthesisUtterance(parts[index]);
-        utterance.lang = voice ? voice.lang : "en-GB";
-        if (voice) utterance.voice = voice;
-        utterance.rate = slow ? 0.6 : 0.9;
-        activeUtterance = utterance;
-        utterance.onstart = () => {
-          if (sequence === speechSequence) document.querySelector("#audio-notice").hidden = true;
-        };
-        utterance.onend = () => {
-          if (sequence !== speechSequence) return;
-          activeUtterance = null;
-          if (index + 1 < parts.length) {
-            // Explicit pauses also work with voices that ignore speech rate.
-            speechTimer = setTimeout(() => playPart(index + 1), 450);
-          }
-        };
-        utterance.onerror = event => {
-          if (sequence !== speechSequence) return;
-          cancelSpeech();
-          if (event.error === "interrupted" || event.error === "canceled") return;
-          notice("audio-notice", "Audio could not play. Try another English voice and check your device's sound settings. Some voices need an internet connection.");
-        };
-        synth.speak(utterance);
-      };
-      playPart(0);
+        console.warn("Could not play phrase recording:", error);
+        notice("audio-notice", "Audio could not play. Check your internet connection, then tap Listen again. Also check media volume and Bluetooth output.");
+      });
     }
     function soundButtons(id) {
       return `<button type="button" class="small-button" data-speak="${id}" aria-label="Hear ${mode === "listen" ? "the hidden phrase" : phrases[id].text}">🔊 Listen</button>
@@ -396,13 +354,6 @@
       document.querySelector("#announcement").textContent = "Your progress has been reset.";
     });
     window.addEventListener("pagehide", cancelSpeech);
-    if (synth) {
-      loadVoices();
-      synth.addEventListener("voiceschanged", loadVoices);
-    } else {
-      document.querySelector("#voice").disabled = true;
-      notice("audio-notice", "This browser does not support spoken audio. Open this file in a recent Chrome, Edge, or Safari for pronunciation playback. Writing practice still works here.");
-    }
     updateProgress();
     renderLearn();
   </script>
