@@ -104,6 +104,7 @@
     </section>
     <div id="storage-notice" class="notice" role="status" hidden></div>
     <div id="audio-notice" class="notice" role="status" hidden></div>
+    <div id="audio-session-notice" class="notice" role="status" hidden></div>
     <div class="toolbar">
       <nav aria-label="Practice modes">
         <button type="button" data-mode="learn" aria-current="page">📖 Explore</button>
@@ -115,6 +116,7 @@
         <select id="voice"><option value="">Device default</option></select>
       </div>
     </div>
+    <p class="subtext" style="margin-top:12px">No sound on iPhone? Turn up media volume while a phrase plays. If it is still silent, turn off Silent Mode and tap Listen again. Playback may pause other audio apps.</p>
     <section id="content" aria-label="Learning activity"></section>
     <footer>
       <span>Made for little learners · 16 phrases from your Unit 1 page<br>Progress stays in this browser. No account. No tracking.</span>
@@ -206,6 +208,16 @@
         return;
       }
       cancelSpeech();
+      if ("audioSession" in navigator && navigator.audioSession) {
+        try {
+          // Request the media route rather than the Silent Mode-sensitive route.
+          navigator.audioSession.type = "playback";
+          document.querySelector("#audio-session-notice").hidden = true;
+        } catch (error) {
+          console.warn("Could not select playback audio routing:", error);
+          notice("audio-session-notice", "Your browser could not select media playback audio. If speech is silent on iPhone, turn off Silent Mode and turn up media volume, then tap Listen again.");
+        }
+      }
       const sequence = speechSequence;
       const selected = document.querySelector("#voice").value;
       const voice = selected !== "" ? voices[Number(selected)] : null;
